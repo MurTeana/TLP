@@ -1,0 +1,33 @@
+program1()
+{
+    int k;
+    double a, b, c;
+    bool state;
+    string res;
+
+    a = 1,2;
+    b = 1,8;
+    c = 1,0;
+    k = 0;
+    state = false;
+    res = "C equal ";
+
+    while (c<101) 
+    {
+        c= (a+b)/(a-b)+k;
+        k=k++;
+        state=true;
+    }
+
+    if (c>100&&state==true)
+    {
+         res = "The result is more than 100. " + res;
+         consol(res, c);
+    }
+    else
+    {
+         res = "The result is less than 100 or equal 100. " + res ;
+         consol(res, c);
+    }
+    return 0;
+}
