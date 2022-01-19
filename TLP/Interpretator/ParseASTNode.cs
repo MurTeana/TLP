@@ -8,13 +8,10 @@ namespace TLP.Interpretator
     {
         public static List<NodeInf> NodeInf_List = new List<NodeInf>();
         public static List<Identity_> Identity_List = new List<Identity_>();
-        public static List<string> PrintToConsol_List = new List<string>();
-        
-        //public static List<ASTNode> Astnode_List = new List<ASTNode>();
-
+        public static List<string> PrintToConsol_List = new List<string>();       
+        public static bool flag = true;
         public static int level = 0;
         public static List<string> PathLevels = new List<string>();
-        public static bool flag = true;
 
         public static void parseAST(SyntaxFactorASTNode astNode)
         {
