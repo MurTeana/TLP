@@ -44,11 +44,6 @@ namespace TLP.Lexer_
             { "true", (p,v) => new Token(Token.TokenType.Keyword, Token.TokenСlassifier.True, p,v.ToString()) },
             { "false", (p,v) => new Token(Token.TokenType.Keyword, Token.TokenСlassifier.False, p,v.ToString())}
         };        
-        static readonly Dictionary<string, Func<int, string, Token>> BoolMap = new Dictionary<string, Func<int, string, Token>> {
-            { "bool", (p,v) => new Token(Token.TokenType.Bool, Token.TokenСlassifier.Bool, p,v.ToString()) },
-            { "true", (p,v) => new Token(Token.TokenType.Bool, Token.TokenСlassifier.True, p,v.ToString()) },
-            { "false", (p,v) => new Token(Token.TokenType.Bool, Token.TokenСlassifier.False, p,v.ToString()) }
-        };
 
         string[] keywords =
         {
@@ -90,11 +85,7 @@ namespace TLP.Lexer_
             "<=",
             "!=",
             "=="
-        };
-
-        List<string> identity = new List<string>();
-
-        
+        };      
 
         readonly SourceScanner _scanner;
         public int Position => _scanner.Position;
@@ -180,12 +171,9 @@ namespace TLP.Lexer_
                 for (int i = 0; i < keywords.Length; i++)
                 {
                     if (sb.ToString() == keywords[i])
-                        //token = new Token(Token.TokenType.Keyword, Token.TokenСlassifier.None, position, sb.ToString());
                         token = KeywordMap[sb.ToString()](position, sb.ToString());
                 }
             }
-
-            addToIdentityList(token);
 
             return token != null;
         }
@@ -350,31 +338,6 @@ namespace TLP.Lexer_
             return state;
         }
 
-        // Добавление в список и Вывод на печать списка идентификаторов
-        private void addToIdentityList(Token token)
-        {
-            if ((token != null) && (token.Type == Token.TokenType.Identity))
-            {
-                bool state = false;
-
-                for (int i = 0; i < identity.Count; i++)
-                {
-                    if (token.Value == identity[i])
-                        state = true;
-                }
-
-                if (!state)
-                    identity.Add(token.Value);                    
-            }
-        }
-        public void printidentity()
-        {
-            Console.WriteLine("\n");
-
-            for (int i = 0; i < identity.Count; i++)
-                Console.WriteLine("Идентификатор {0} равен {1}", i, identity[i]);
-        }
-
         public void Accept() => ReadNext();
 
         // Посмотреть следующий токен
@@ -387,7 +350,6 @@ namespace TLP.Lexer_
         }
 
         // Посмотреть токен с позицией n
-
         public Token PeekN(int n)
         {
             Token token = null;
@@ -396,16 +358,12 @@ namespace TLP.Lexer_
             {
                 _scanner.Push();
                 token = ReadNext();
-
             }
 
             for (int i = 0; i < n; i++)
-            {
                 _scanner.Pop();
-            }
 
             return token;
         }
-
     }
 }

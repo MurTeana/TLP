@@ -116,7 +116,6 @@ namespace TLP.Parser_
         private static ASTNode Parse_define_var(Lexer lexer)
         {
             Token token = new Token(Token.TokenType.None, Token.TokenСlassifier.None, -1, "define_var");
-            //List<ASTNode> astnodelist = new List<ASTNode>();
 
             ASTNode TypeASTNode = Parse_type(lexer);
 
@@ -154,11 +153,11 @@ namespace TLP.Parser_
         }
         private static ASTNode Parse_id_list(Lexer lexer)
         {
+            Token token = new Token(Token.TokenType.None, Token.TokenСlassifier.None, -1, "id_list");
+
             List<ASTNode> astnodelist = new List<ASTNode>();
 
-            Token token = new Token(Token.TokenType.None, Token.TokenСlassifier.None, -1, "");
-
-            var node = Parse_Id(lexer);
+            ASTNode node = Parse_Id(lexer);
             astnodelist.Add(node);
 
             var peekToken = lexer.Peek();
@@ -187,20 +186,16 @@ namespace TLP.Parser_
         {
             var peekToken = lexer.Peek();
 
-            if (peekToken.Type == Token.TokenType.Keyword &&
-                peekToken.Сlassifier == Token.TokenСlassifier.Int)
+            if (peekToken.Сlassifier == Token.TokenСlassifier.Int)
                 return Parse_Keyword_Int(lexer);
 
-            if (peekToken.Type == Token.TokenType.Keyword &&
-                peekToken.Сlassifier == Token.TokenСlassifier.Double)
+            if (peekToken.Сlassifier == Token.TokenСlassifier.Double)
                 return Parse_Keyword_Double(lexer);
 
-            if (peekToken.Type == Token.TokenType.Keyword &&
-                peekToken.Сlassifier == Token.TokenСlassifier.String)
+            if (peekToken.Сlassifier == Token.TokenСlassifier.String)
                 return Parse_Keyword_String(lexer);
 
-            if (peekToken.Type == Token.TokenType.Keyword &&
-                peekToken.Сlassifier == Token.TokenСlassifier.Bool)
+            if (peekToken.Сlassifier == Token.TokenСlassifier.Bool)
                 return Parse_Keyword_Bool(lexer);
 
             if (peekToken.Type == Token.TokenType.EOE)
@@ -213,7 +208,7 @@ namespace TLP.Parser_
         private static ASTNode Parse_statement_list(Lexer lexer)
         {
             List<ASTNode> astnodelist = new List<ASTNode>();
-            Token token = new Token(Token.TokenType.None, Token.TokenСlassifier.None, -1, "");
+            Token token = new Token(Token.TokenType.None, Token.TokenСlassifier.None, -1, "statement_list");
             var node = Parse_statement(lexer);
             astnodelist.Add(node);
 
@@ -239,20 +234,21 @@ namespace TLP.Parser_
         {
             var peekToken = lexer.Peek();
 
-            if (peekToken.Type == Token.TokenType.Keyword &&
-                (peekToken.Value == "if"))
+            if (peekToken.Type == Token.TokenType.Keyword && peekToken.Value == "if")
                 return Parse_if(lexer);
-            if (peekToken.Type == Token.TokenType.Keyword &&
-                (peekToken.Value == "consol"))
+
+            if (peekToken.Type == Token.TokenType.Keyword && peekToken.Value == "consol")
                 return Parse_consol(lexer);
-            if (peekToken.Type == Token.TokenType.Keyword &&
-                (peekToken.Value == "while"))
+
+            if (peekToken.Type == Token.TokenType.Keyword && peekToken.Value == "while")
                 return Parse_while(lexer);
-            if (peekToken.Type == Token.TokenType.Keyword &&
-                (peekToken.Value == "return"))
+
+            if (peekToken.Type == Token.TokenType.Keyword && peekToken.Value == "return")
                 return Parse_return(lexer);
+
             if (peekToken.Type == Token.TokenType.Identity)
                 return Parse_assign_exp(lexer);
+
             if (peekToken.Type == Token.TokenType.EOE)
                 return Parse_EOE(lexer);
 
@@ -263,7 +259,7 @@ namespace TLP.Parser_
         public static ASTNode Parse_return(Lexer lexer)
         {
             List<ASTNode> astnodelist = new List<ASTNode>();
-            var token = Parse_Keyword(lexer);
+            var token = Parse_Keyword_Return(lexer);
 
             var peekToken = lexer.Peek();
 
@@ -287,7 +283,7 @@ namespace TLP.Parser_
         {
             List<ASTNode> astnodelist = new List<ASTNode>();
             ASTNode nextASTNode;
-            var token = Parse_Keyword(lexer);
+            var token = Parse_Keyword_While(lexer);
 
             var peekToken = lexer.Peek();
 
@@ -403,7 +399,7 @@ namespace TLP.Parser_
         }
         public static ASTNode Parse_if(Lexer lexer)
         {
-            var token = Parse_Keyword_If(lexer);
+            Token token = Parse_Keyword_If(lexer);
 
             ASTNode LeftRoundBracketASTNode = null;
             ASTNode ConditionASTNode = null;
@@ -510,33 +506,36 @@ namespace TLP.Parser_
         // ASSIGN
         public static ASTNode Parse_assign_exp(Lexer lexer)
         {
-            List<ASTNode> astnodelist = new List<ASTNode>();
-            var node = Parse_Id(lexer);
-            astnodelist.Add(node);
+            Token operator_ = null;
+
+            ASTNode leftASTNode = Parse_Id(lexer);
+            ASTNode rightASTNode = null;
+            ASTNode SemicolonASTNode = null;
 
             var peekToken = lexer.Peek();
 
             if (peekToken.Сlassifier == Token.TokenСlassifier.Equal)
             {
-                var operator_ = lexer.ReadNext();
-
-                var nextpeekToken = lexer.Peek();
-
-                while (nextpeekToken.Сlassifier != Token.TokenСlassifier.Semicolon)
-                {
-                    var nextASTNode = Parse_exp(lexer);
-                    astnodelist.Add(nextASTNode);
-                    nextpeekToken = lexer.Peek();
-                }
-
-                if (nextpeekToken.Сlassifier == Token.TokenСlassifier.Semicolon)
-                {
-                    var nextASTNode = Parse_Signseparator(lexer);
-                    astnodelist.Add(nextASTNode);
-                }
-
-                node = CreateSyntaxFactor(operator_, astnodelist);
+                operator_ = lexer.ReadNext();
             }
+
+            var nextpeekToken = lexer.Peek();
+
+            while (nextpeekToken.Сlassifier != Token.TokenСlassifier.Semicolon)
+            {
+                rightASTNode = Parse_exp(lexer);
+
+                nextpeekToken = lexer.Peek();
+            }
+
+            if (nextpeekToken.Сlassifier == Token.TokenСlassifier.Semicolon)
+            {
+                SemicolonASTNode = Parse_Signseparator(lexer);
+            }
+
+            List<ASTNode> astnodelist = new List<ASTNode>() { leftASTNode, rightASTNode, SemicolonASTNode };
+
+            ASTNode node = CreateSyntaxFactor(operator_, astnodelist);
 
             return node;
         }
@@ -546,10 +545,8 @@ namespace TLP.Parser_
         {
             var peekToken = lexer.Peek();
             var peekToken2 = lexer.PeekN(2);
-            var peekToken3 = lexer.PeekN(3);
 
-            if (
-                (
+            if ((
                 (peekToken.Type == Token.TokenType.Int ||
                 peekToken.Type == Token.TokenType.Double ||
                 peekToken.Type == Token.TokenType.Identity ||
@@ -560,8 +557,7 @@ namespace TLP.Parser_
                 peekToken2.Сlassifier != Token.TokenСlassifier.GreaterThan &&
                 peekToken2.Сlassifier != Token.TokenСlassifier.LessThan &&
                 peekToken2.Сlassifier != Token.TokenСlassifier.GreaterOrEqualThan &&
-                peekToken2.Сlassifier != Token.TokenСlassifier.LessOrEqualThan)
-                )
+                peekToken2.Сlassifier != Token.TokenСlassifier.LessOrEqualThan))
                 ||
                 (
                 (peekToken.Type == Token.TokenType.Int ||
@@ -571,8 +567,7 @@ namespace TLP.Parser_
                 peekToken2.Сlassifier == Token.TokenСlassifier.Subtraction ||
                 peekToken2.Сlassifier == Token.TokenСlassifier.Multiplication ||
                 peekToken2.Сlassifier == Token.TokenСlassifier.Division)
-                )
-                )
+                ))
                 return Parse_exprcalc(lexer);
 
             if (
@@ -740,12 +735,16 @@ namespace TLP.Parser_
                 peekToken2.Value == "false" || 
                 peekToken2.Type == Token.TokenType.Identity))))
                 return Parse_Bool(lexer);
+
             if (peekToken.Type == Token.TokenType.Identity)
                 return Parse_Id(lexer);
+
             if (peekToken.Type == Token.TokenType.Int)
                 return Parse_Int(lexer);
+
             if (peekToken.Type == Token.TokenType.Double)
                 return Parse_Double(lexer);
+
             if (peekToken.Type == Token.TokenType.EOE)
                 return Parse_EOE(lexer);
 
@@ -798,6 +797,7 @@ namespace TLP.Parser_
 
             if (peekToken.Type == Token.TokenType.String)
                 return Parse_String(lexer);
+
             if (peekToken.Type == Token.TokenType.Identity)
                 return Parse_Id(lexer);
 
@@ -867,7 +867,7 @@ namespace TLP.Parser_
             var leftASTNode = Parse_expr2(lexer);
 
             var peekToken = lexer.Peek();
-            // while
+            
             while (peekToken.Сlassifier == Token.TokenСlassifier.Multiplication || 
                 peekToken.Сlassifier == Token.TokenСlassifier.Division)
             {
@@ -894,11 +894,14 @@ namespace TLP.Parser_
 
             if (peekToken.Type == Token.TokenType.Int)
                 return Parse_Int(lexer);
+
             if (peekToken.Type == Token.TokenType.Double)
                 return Parse_Double(lexer);
+
             if (((peekToken.Type == Token.TokenType.Identity) && (peekToken2.Сlassifier == Token.TokenСlassifier.Increment)) ||
                 ((peekToken.Type == Token.TokenType.Identity) && (peekToken2.Сlassifier == Token.TokenСlassifier.Decrement)))
                 return Parse_ExpIncDec(lexer);
+
             if ((peekToken.Type == Token.TokenType.Identity) &&
                  (peekToken2.Сlassifier == Token.TokenСlassifier.Addition ||
                   peekToken2.Сlassifier == Token.TokenСlassifier.Subtraction ||
@@ -907,13 +910,8 @@ namespace TLP.Parser_
                   peekToken2.Сlassifier != Token.TokenСlassifier.Equal))
                 return Parse_Id(lexer);
 
-            //if (peekToken2.Сlassifier == Token.TokenСlassifier.Addition ||
-            //    peekToken2.Сlassifier == Token.TokenСlassifier.Subtraction)
-            //    return Parse_exprcalc(lexer);
             if (peekToken.Сlassifier == Token.TokenСlassifier.LeftRoundBracket)
-            {
                 return Parse_exprcalc_inbrackets(lexer);            
-            }
 
             throw new Exception($"Invalid Expression.  EXPR2 Expected at position {lexer.Position}");
         }
@@ -985,7 +983,7 @@ namespace TLP.Parser_
         }
         public static ASTNode Parse_Id(Lexer lexer)
         {
-            var token = lexer.Peek();
+            Token token = lexer.Peek();
             if (token.Type != Token.TokenType.Identity)
                 throw new Exception($"Invalid Expression.  Identity Expected at position {lexer.Position}");
 
@@ -1002,7 +1000,7 @@ namespace TLP.Parser_
                 token.Сlassifier != Token.TokenСlassifier.Int)
                 throw new Exception($"Invalid Expression.  INTKeyword Expected at position {lexer.Position}");
 
-            lexer.Accept();  //consume the token
+            lexer.Accept();  
 
             return new IntKeywordASTNode(token);
         }
@@ -1013,7 +1011,7 @@ namespace TLP.Parser_
                 token.Сlassifier != Token.TokenСlassifier.Double)
                 throw new Exception($"Invalid Expression.  DoubleKeyword Expected at position {lexer.Position}");
 
-            lexer.Accept();  //consume the token
+            lexer.Accept();  
 
             return new DoubleKeywordASTNode(token);
         }
@@ -1041,6 +1039,17 @@ namespace TLP.Parser_
         }
 
         // KEYWORDS
+        public static Token Parse_Keyword_While(Lexer lexer)
+        {
+            var token = lexer.Peek();
+            if (token.Type != Token.TokenType.Keyword &&
+                token.Сlassifier != Token.TokenСlassifier.While)
+                throw new Exception($"Invalid Expression.  WhileKeyword Expected at position {lexer.Position}");
+
+            lexer.Accept();
+
+            return token;
+        }
         public static Token Parse_Keyword_If(Lexer lexer)
         {
             var token = lexer.Peek();
@@ -1074,13 +1083,14 @@ namespace TLP.Parser_
 
             return token;
         }
-        public static Token Parse_Keyword(Lexer lexer)
+        public static Token Parse_Keyword_Return(Lexer lexer)
         {
             var token = lexer.Peek();
-            if (token.Type != Token.TokenType.Keyword)
-                throw new Exception($"Invalid Expression.  Keyword Expected at position {lexer.Position}");
+            if (token.Type != Token.TokenType.Keyword &&
+                token.Сlassifier != Token.TokenСlassifier.Return)
+                throw new Exception($"Invalid Expression.  ReturnKeyword Expected at position {lexer.Position}");
 
-            lexer.Accept();  
+            lexer.Accept();
 
             return token;
         }
