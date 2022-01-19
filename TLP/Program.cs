@@ -30,11 +30,8 @@ namespace TLP
             var ast = Parser.Parse(expression) as SyntaxFactorASTNode;
             Console.WriteLine("\n");
 
-            // Вывод на печать узлов дерева
-            //ParseASTNode.printListASTNode(ast);
-            
-            // Вычисление значений идентификаторов
-            ParseASTNode.printIdentity(ast);
+            // Вывод на печать узлов дерева и вычисление значений идентификаторов
+            ParseASTNode.printASTNodeInfList(ast);
 
             Console.WriteLine("");
         }
